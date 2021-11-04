@@ -18,7 +18,7 @@ object ProducerDemoKeys {
     // create Producer properties
     val props = new Properties()
     val bootstrapServers = "127.0.0.1:29092"
-    props.setProperty(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers)
+    props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers)
     props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer")
     props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer")
 
@@ -43,7 +43,7 @@ object ProducerDemoKeys {
       val key = s"id_$i"
       logger.info(s"Key $key")
 
-      val record: ProducerRecord[String, String] = new ProducerRecord("first_topic", key, s"hello world $i")
+      val record: ProducerRecord[String, String] = new ProducerRecord("second_topic", key, s"hello world $i")
       // and send the data (synchronously, blocks the send, bad practice)
       producer.send(record, callback).get()
     }

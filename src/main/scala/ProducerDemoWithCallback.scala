@@ -18,7 +18,7 @@ object ProducerDemoWithCallback {
     // create Producer properties
     val props = new Properties()
     val bootstrapServers = "127.0.0.1:29092"
-    props.setProperty(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers)
+    props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers)
     props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer")
     props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer")
 
@@ -37,7 +37,7 @@ object ProducerDemoWithCallback {
 
     for(i <- 1 to 10) {
       // create a producer record
-      val record: ProducerRecord[String, String] = new ProducerRecord("first_topic", s"hello world $i")
+      val record: ProducerRecord[String, String] = new ProducerRecord("second_topic", s"hello world $i")
       // and send the data
       producer.send(record, callback)
     }
