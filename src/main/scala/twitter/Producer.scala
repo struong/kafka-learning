@@ -1,35 +1,19 @@
 package twitter
 
-import org.slf4j.LoggerFactory
+import org.apache.kafka.clients.producer.{KafkaProducer, ProducerConfig}
 
-import java.util.concurrent.{LinkedBlockingQueue, TimeUnit}
+import java.util.Properties
 
 object Producer {
-  def main(args: Array[String]): Unit = {
-    val logger = LoggerFactory.getLogger(getClass)
 
-    logger.info("Setup")
-    // Set up your blocking queues: Be sure to size these properly based on expected TPS of your stream
-    var messageQueue = new LinkedBlockingQueue[String](10)
+  def createProducer(bootstrapServer: String): KafkaProducer[String, String] = {
+    val props = new Properties()
 
-    // create a twitter client
-    val client = Client(messageQueue)
-    client.connect()
+    props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServer)
+    props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer")
+    props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer")
 
-    // create a kafka producer
-
-    // loop to send tweets to kafka
-    // on a different thread, or multiple different threads....
-    while (!client.isDone()) {
-      try {
-        logger.info(messageQueue.poll(5, TimeUnit.SECONDS))
-      } catch {
-        case e: InterruptedException =>
-          e.printStackTrace()
-          client.stop()
-      }
-    }
-
-    logger.info("End of application")
+    new KafkaProducer(props)
   }
+
 }

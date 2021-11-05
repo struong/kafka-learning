@@ -1,7 +1,7 @@
 package config
 
 final case class BrokerAddress(uri: String)
-final case class TopicsConfig(name: String)
+final case class TopicsConfig(name: String, twitter: String)
 
 final case class ServiceConfig(server: BrokerAddress, topics: TopicsConfig)
 
