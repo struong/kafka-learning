@@ -1,21 +1,25 @@
 package consumers
 
+import config.ServiceConfig
 import org.apache.kafka.clients.consumer.{ConsumerConfig, ConsumerRecords, KafkaConsumer}
 import org.slf4j.LoggerFactory
+import pureconfig._
+import pureconfig.generic.auto._
 
 import java.time.Duration
 import java.util.Properties
+import scala.jdk.CollectionConverters.SeqHasAsJava
 
 object ConsumerDemo {
   def main(args: Array[String]): Unit = {
     val logger = LoggerFactory.getLogger(getClass)
 
+    val config = ConfigSource.default.loadOrThrow[ServiceConfig]
     val properties = new Properties
-    val bootstrapServers = "127.0.0.1:29092"
-    val groupId = "consumer-example-group"
-    val topic = "second_topic"
 
-    properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers)
+    val groupId = "consumer-example-group"
+
+    properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, config.server.uri)
     properties.put(
       ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
       "org.apache.kafka.common.serialization.StringDeserializer")
@@ -29,7 +33,7 @@ object ConsumerDemo {
     val consumer: KafkaConsumer[String, String] = new KafkaConsumer(properties)
 
     // subscribe consumer to our topic(s)
-    consumer.subscribe(List(topic).asJava)
+    consumer.subscribe(List(config.topics.name).asJava)
 
     // poll for new data
     while (true) {

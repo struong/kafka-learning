@@ -1,7 +1,10 @@
 package producers
 
+import config.ServiceConfig
 import org.apache.kafka.clients.producer._
 import org.slf4j.{Logger, LoggerFactory}
+import pureconfig._
+import pureconfig.generic.auto._
 
 import java.util.Properties
 
@@ -18,9 +21,10 @@ object ProducerDemoWithCallback {
     val logger: Logger = LoggerFactory.getLogger(getClass)
 
     // create Producer properties
+    val config = ConfigSource.default.loadOrThrow[ServiceConfig]
+
     val props = new Properties()
-    val bootstrapServers = "127.0.0.1:29092"
-    props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers)
+    props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, config)
     props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer")
     props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer")
 
@@ -39,7 +43,7 @@ object ProducerDemoWithCallback {
 
     for (i <- 1 to 10) {
       // create a producer record
-      val record: ProducerRecord[String, String] = new ProducerRecord("second_topic", s"hello world $i")
+      val record: ProducerRecord[String, String] = new ProducerRecord(config.topics.name, s"hello world $i")
       // and send the data
       producer.send(record, callback)
     }
