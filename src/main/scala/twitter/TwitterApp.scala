@@ -27,7 +27,7 @@ object TwitterApp {
     val messageQueue = new LinkedBlockingQueue[String](10)
 
     // create a twitter client
-    val client = Client(messageQueue)
+    val client = Client(messageQueue, List("bitcoin"))
     client.connect()
 
     // create the topic
@@ -35,6 +35,13 @@ object TwitterApp {
 
     // create a kafka producer
     val producer = Producer.createProducer(serverAddress)
+    sys.addShutdownHook {
+      logger.info("Shutting down application")
+      logger.info("Stopping client")
+      client.stop()
+      logger.info("Stopping producer")
+      producer.close()
+    }
 
     val callback = new Callback {
       override def onCompletion(metadata: RecordMetadata, exception: Exception): Unit = {
@@ -58,9 +65,6 @@ object TwitterApp {
           client.stop()
       }
     }
-
-    producer.flush()
-    producer.close()
 
     logger.info("End of application")
   }

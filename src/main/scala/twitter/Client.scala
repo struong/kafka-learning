@@ -14,7 +14,7 @@ import java.util.concurrent.BlockingQueue
 import scala.jdk.CollectionConverters.SeqHasAsJava
 
 object Client {
-  def apply(messageQueue: BlockingQueue[String]): BasicClient = {
+  def apply(messageQueue: BlockingQueue[String], terms: List[String]): BasicClient = {
     // Declare the host you want to connect to, the endpoint, and authentication (basic auth or oauth)
     val hosebirdHosts = new HttpHosts(Constants.STREAM_HOST)
     val hosebirdEndpoint = new StatusesFilterEndpoint
@@ -23,9 +23,7 @@ object Client {
     // followings -> follow people
     // val followings = List(1234L, 566788L).map(long2Long).asJava
     // hosebirdEndpoint.followings(followings)
-    val termToSearchFor = "bitcoin"
-    val terms = List(termToSearchFor).asJava
-    hosebirdEndpoint.trackTerms(terms)
+    hosebirdEndpoint.trackTerms(terms.asJava)
 
     val config = ConfigSource.default.loadOrThrow[TwitterConfig]
     val consumerKey = config.twitter.consumerKey
