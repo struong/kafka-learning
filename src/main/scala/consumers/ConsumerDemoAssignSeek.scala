@@ -1,10 +1,11 @@
+package consumers
+
 import org.apache.kafka.clients.consumer.{ConsumerConfig, ConsumerRecords, KafkaConsumer}
 import org.apache.kafka.common.TopicPartition
 import org.slf4j.LoggerFactory
 
 import java.time.Duration
 import java.util.Properties
-import scala.jdk.CollectionConverters.SeqHasAsJava
 
 object ConsumerDemoAssignSeek {
   def main(args: Array[String]): Unit = {
@@ -16,8 +17,12 @@ object ConsumerDemoAssignSeek {
     val topic = "second_topic"
 
     properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers)
-    properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringDeserializer")
-    properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringDeserializer")
+    properties.put(
+      ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
+      "org.apache.kafka.common.serialization.StringDeserializer")
+    properties.put(
+      ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
+      "org.apache.kafka.common.serialization.StringDeserializer")
     properties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest") // earliest/latest/none
 
     // create Consumer

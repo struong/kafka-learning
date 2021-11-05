@@ -1,4 +1,7 @@
+package producers
+
 import org.apache.kafka.clients.producer.{KafkaProducer, ProducerConfig, ProducerRecord}
+
 import java.util.Properties
 
 object ProducerDemo {

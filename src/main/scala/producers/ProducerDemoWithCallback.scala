@@ -1,4 +1,6 @@
-import org.apache.kafka.clients.producer.{Callback, KafkaProducer, ProducerConfig, ProducerRecord, RecordMetadata}
+package producers
+
+import org.apache.kafka.clients.producer._
 import org.slf4j.{Logger, LoggerFactory}
 
 import java.util.Properties
@@ -35,7 +37,7 @@ object ProducerDemoWithCallback {
       }
     }
 
-    for(i <- 1 to 10) {
+    for (i <- 1 to 10) {
       // create a producer record
       val record: ProducerRecord[String, String] = new ProducerRecord("second_topic", s"hello world $i")
       // and send the data
