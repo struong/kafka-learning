@@ -1,4 +1,4 @@
-package consumers
+package basics.consumers
 
 import config.ServiceConfig
 import org.apache.kafka.clients.consumer.{ConsumerConfig, ConsumerRecords, KafkaConsumer}

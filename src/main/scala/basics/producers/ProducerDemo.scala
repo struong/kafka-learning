@@ -1,4 +1,4 @@
-package producers
+package basics.producers
 
 import config.ServiceConfig
 import org.apache.kafka.clients.producer.{KafkaProducer, ProducerConfig, ProducerRecord}

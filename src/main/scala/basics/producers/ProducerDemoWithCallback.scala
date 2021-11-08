@@ -1,4 +1,4 @@
-package producers
+package basics.producers
 
 import config.ServiceConfig
 import org.apache.kafka.clients.producer._
@@ -8,7 +8,7 @@ import pureconfig.generic.auto._
 
 import java.util.Properties
 
-object ProducerDemoKeys {
+object ProducerDemoWithCallback {
 
   def printMetaData(metadata: RecordMetadata): String =
     s"""topic: ${metadata.topic()},
@@ -22,8 +22,9 @@ object ProducerDemoKeys {
 
     // create Producer properties
     val config = ConfigSource.default.loadOrThrow[ServiceConfig]
+
     val props = new Properties()
-    props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, config.server.uri)
+    props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, config)
     props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer")
     props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer")
 
@@ -42,15 +43,9 @@ object ProducerDemoKeys {
 
     for (i <- 1 to 10) {
       // create a producer record
-
-      // note that round robin partitioning strategy is no longer a thing, kafka
-      // now uses stick partitioning strategy https://www.confluent.io/blog/apache-kafka-producer-improvements-sticky-partitioner/
-      val key = s"id_$i"
-      logger.info(s"Key $key")
-
-      val record: ProducerRecord[String, String] = new ProducerRecord(config.topics.name, key, s"hello world $i")
-      // and send the data (synchronously, blocks the send, bad practice)
-      producer.send(record, callback).get()
+      val record: ProducerRecord[String, String] = new ProducerRecord(config.topics.name, s"hello world $i")
+      // and send the data
+      producer.send(record, callback)
     }
 
     // flush the data

@@ -1,4 +1,4 @@
-package consumers
+package basics.consumers
 
 import config.ServiceConfig
 import org.apache.kafka.clients.consumer.{ConsumerConfig, ConsumerRecords, KafkaConsumer}
@@ -10,13 +10,14 @@ import java.time.Duration
 import java.util.Properties
 import scala.jdk.CollectionConverters.SeqHasAsJava
 
-object ConsumerDemoGroups {
+object ConsumerDemo {
   def main(args: Array[String]): Unit = {
     val logger = LoggerFactory.getLogger(getClass)
 
     val config = ConfigSource.default.loadOrThrow[ServiceConfig]
     val properties = new Properties
-    val groupId = "consumer-example-group-two"
+
+    val groupId = "consumer-example-group"
 
     properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, config.server.uri)
     properties.put(
