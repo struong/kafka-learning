@@ -18,7 +18,7 @@ object TwitterApp {
   def main(args: Array[String]): Unit = {
     // To run the command line consumer:
     // kafka-console-consumer --bootstrap-server localhost:29092 --topic twitter_topic.v1
-    
+
     val logger = LoggerFactory.getLogger(getClass)
 
     logger.info("Setup")

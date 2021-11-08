@@ -1,4 +1,4 @@
-name := "kafka-test"
+name := "kafka-learning"
 
 version := "0.1"
 
