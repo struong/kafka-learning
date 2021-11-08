@@ -1,0 +1,75 @@
+package elasticSearch
+
+import com.sksamuel.elastic4s.fields.TextField
+import com.sksamuel.elastic4s.http.{JavaClient, NoOpRequestConfigCallback}
+import com.sksamuel.elastic4s.requests.common.RefreshPolicy
+import com.sksamuel.elastic4s.{ElasticClient, ElasticProperties}
+import config.BonsaiConfig
+import org.apache.http.auth.{AuthScope, UsernamePasswordCredentials}
+import org.apache.http.impl.client.BasicCredentialsProvider
+import org.apache.http.impl.nio.client.HttpAsyncClientBuilder
+import org.apache.kafka.clients.consumer.ConsumerRecords
+import org.elasticsearch.client.RestClientBuilder.HttpClientConfigCallback
+import org.slf4j.LoggerFactory
+import pureconfig._
+import pureconfig.generic.auto._
+
+import java.time.Duration
+
+object ElasticSearchClient extends App {
+  val logger = LoggerFactory.getLogger(getClass)
+
+  val config = ConfigSource.default.loadOrThrow[BonsaiConfig]
+
+  val hostname = config.bonsai.hostname
+  val userName = config.bonsai.userName
+  val password = config.bonsai.password
+
+  val callback = new HttpClientConfigCallback {
+    override def customizeHttpClient(httpClientBuilder: HttpAsyncClientBuilder): HttpAsyncClientBuilder = {
+      val creds = new BasicCredentialsProvider()
+      creds.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(userName, password))
+      httpClientBuilder.setDefaultCredentialsProvider(creds)
+    }
+  }
+
+  val props = ElasticProperties(hostname)
+  val client = ElasticClient(
+    JavaClient(props, requestConfigCallback = NoOpRequestConfigCallback, httpClientConfigCallback = callback))
+
+  // we must import the dsl
+  import com.sksamuel.elastic4s.ElasticDsl._
+
+  val indexName = "twitter"
+
+  // Next we create an index in advance ready to receive documents.
+  // await is a helper method to make this operation synchronous instead of async
+  // You would normally avoid doing this in a real program as it will block
+  // the calling thread but is useful when testing
+  client.execute {
+    createIndex(indexName)
+  }.await
+
+  val consumer = Consumer()
+
+  // poll for new data
+  while (true) {
+    val consumerRecords: ConsumerRecords[String, String] = consumer.poll(Duration.ofMillis(100))
+
+    consumerRecords.forEach { record =>
+      val value = record.value()
+      val response = client.execute {
+        indexInto(indexName).source(value).refresh(RefreshPolicy.Immediate)
+      }.await
+
+      logger.info(response.result.toString)
+
+      // just so we can see what is happening
+      Thread.sleep(1000)
+    }
+  }
+
+  // close the client gracefully
+  client.close()
+  logger.info("Application exited")
+}
