@@ -16,6 +16,9 @@ object TwitterApp {
        | (ts: ${metadata.timestamp()})""".stripMargin.replace("\n", "")
 
   def main(args: Array[String]): Unit = {
+    // To run the command line consumer:
+    // kafka-console-consumer --bootstrap-server localhost:29092 --topic twitter_topic.v1
+    
     val logger = LoggerFactory.getLogger(getClass)
 
     logger.info("Setup")
@@ -27,7 +30,7 @@ object TwitterApp {
     val messageQueue = new LinkedBlockingQueue[String](10)
 
     // create a twitter client
-    val client = Client(messageQueue, List("bitcoin"))
+    val client = Client(messageQueue, List("bitcoin, politics, lfc"))
     client.connect()
 
     // create the topic
