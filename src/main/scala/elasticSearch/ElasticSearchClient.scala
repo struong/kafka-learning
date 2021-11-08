@@ -57,11 +57,22 @@ object ElasticSearchClient extends App {
     val consumerRecords: ConsumerRecords[String, String] = consumer.poll(Duration.ofMillis(100))
 
     consumerRecords.forEach { record =>
+
+      // 2 strategies to generate a an ID to ensure data is idempotent
+      // 1. Kafka generic ID
+      val genericId = s"${record.topic()} ${record.partition()} ${record.offset()}"
+
+      // 2. Twitter specific ID
+      val tweet = JsonParser.parse(record.value())
+      val id = tweet.id_str
+
       val value = record.value()
       val response = client.execute {
-        indexInto(indexName).source(value).refresh(RefreshPolicy.Immediate)
+        indexInto(indexName).source(value).id(id).refreshImmediately
       }.await
 
+//      logger.info(s"id: ${tweet.id}")
+//      logger.info(s"text: ${tweet.text}")
       logger.info(response.result.toString)
 
       // just so we can see what is happening
