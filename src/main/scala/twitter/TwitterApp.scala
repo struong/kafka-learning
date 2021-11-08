@@ -8,17 +8,9 @@ import pureconfig.generic.auto._
 
 import java.util.concurrent.{LinkedBlockingQueue, TimeUnit}
 
-object TwitterApp {
-  def printMetaData(metadata: RecordMetadata): String =
-    s"""topic: ${metadata.topic()},
-       | partition: ${metadata.partition()},
-       | offset: ${metadata.offset()}
-       | (ts: ${metadata.timestamp()})""".stripMargin.replace("\n", "")
-
-  def main(args: Array[String]): Unit = {
+object TwitterApp extends App {
     // To run the command line consumer:
     // kafka-console-consumer --bootstrap-server localhost:29092 --topic twitter_topic.v1
-
     val logger = LoggerFactory.getLogger(getClass)
 
     logger.info("Setup")
@@ -48,6 +40,12 @@ object TwitterApp {
 
     val callback = new Callback {
       override def onCompletion(metadata: RecordMetadata, exception: Exception): Unit = {
+        def printMetaData(metadata: RecordMetadata): String =
+          s"""topic: ${metadata.topic()},
+             | partition: ${metadata.partition()},
+             | offset: ${metadata.offset()}
+             | (ts: ${metadata.timestamp()})""".stripMargin.replace("\n", "")
+
         // executes every time a record is successfully sent or an exception is thrown
         Option(exception)
           .map(ex => logger error s"fail to produce record due to: ${ex.getMessage}")
@@ -70,5 +68,4 @@ object TwitterApp {
     }
 
     logger.info("End of application")
-  }
 }
