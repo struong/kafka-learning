@@ -25,6 +25,8 @@ object Consumer {
       "org.apache.kafka.common.serialization.StringDeserializer")
     properties.put(ConsumerConfig.GROUP_ID_CONFIG, groupId)
     properties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest") // earliest/latest/none
+    properties.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false") // disables auto commits of offsets
+    properties.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, "10") // only recieved 10 records at a time
 
     // create Consumer
     val consumer: KafkaConsumer[String, String] = new KafkaConsumer(properties)

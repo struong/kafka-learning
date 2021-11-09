@@ -55,29 +55,33 @@ object ElasticSearchClient extends App {
   // poll for new data
   while (true) {
     val consumerRecords: ConsumerRecords[String, String] = consumer.poll(Duration.ofMillis(100))
+    logger.info(s"Received ${consumerRecords.count()} records")
 
     consumerRecords.forEach { record =>
-
       // 2 strategies to generate a an ID to ensure data is idempotent
       // 1. Kafka generic ID
       val genericId = s"${record.topic()} ${record.partition()} ${record.offset()}"
 
       // 2. Twitter specific ID
-      val tweet = JsonParser.parse(record.value())
-      val id = tweet.id_str
+      JsonParser.parse(record.value()).map { tweet =>
+        val id = tweet.id_str
 
-      val value = record.value()
-      val response = client.execute {
-        indexInto(indexName).source(value).id(id).refreshImmediately
-      }.await
+        val value = record.value()
+        val response = client.execute {
+          indexInto(indexName).source(value).id(id).refreshImmediately
+        }.await
 
-//      logger.info(s"id: ${tweet.id}")
-//      logger.info(s"text: ${tweet.text}")
-      logger.info(response.result.toString)
-
-      // just so we can see what is happening
-      Thread.sleep(1000)
+        logger.info(response.result.toString)
+        Thread.sleep(10)
+      }
     }
+
+    logger.info("Committing offsets...")
+    consumer.commitSync()
+    logger.info("Offsets have been committed")
+    Thread.sleep(1000)
+
+    // to find the committed entries do: GET /twitter/_doc/{id}
   }
 
   // close the client gracefully
