@@ -1,12 +1,10 @@
 package elasticSearch
 
 import config.ServiceConfig
-import org.apache.kafka.clients.consumer.{ConsumerConfig, ConsumerRecords, KafkaConsumer}
-import org.slf4j.LoggerFactory
+import org.apache.kafka.clients.consumer.{ConsumerConfig, KafkaConsumer}
 import pureconfig._
 import pureconfig.generic.auto._
 
-import java.time.Duration
 import java.util.Properties
 import scala.jdk.CollectionConverters.SeqHasAsJava
 
@@ -26,7 +24,7 @@ object Consumer {
     properties.put(ConsumerConfig.GROUP_ID_CONFIG, groupId)
     properties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest") // earliest/latest/none
     properties.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false") // disables auto commits of offsets
-    properties.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, "10") // only recieved 10 records at a time
+    properties.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, "100") // only receive 100 records at a time
 
     // create Consumer
     val consumer: KafkaConsumer[String, String] = new KafkaConsumer(properties)
